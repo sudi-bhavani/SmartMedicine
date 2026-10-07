@@ -1,5 +1,5 @@
 import os
-import base64
+import time
 import sqlite3
 from datetime import datetime
 
@@ -33,146 +33,36 @@ st.set_page_config(
 # CUSTOM CSS
 # ============================================================
 
-# ============================================================
-# CUSTOM CSS
-# ============================================================
-
-   # ============================================================
-# CUSTOM CSS
-# ============================================================
-
-with open("medical_bg.png", "rb") as image_file:
-    encoded_image = base64.b64encode(image_file.read()).decode()
-
 st.markdown(
-    f"""
+    """
     <style>
 
-    /* ===== MAIN BACKGROUND ===== */
-    .stApp {{
-        background-image:
-            linear-gradient(
-                rgba(235, 250, 247, 0.80),
-                rgba(235, 250, 247, 0.80)
-            ),
-            url("data:image/png;base64,{encoded_image}");
-
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        color: #1f2937;
-    }}
-
-    /* ===== MAIN TITLE ===== */
-    .main-title {{
-        font-size: 46px;
-        font-weight: 800;
+    .main-title {
+        font-size: 42px;
+        font-weight: bold;
         text-align: center;
-        color: #087f5b;
-        margin-top: 10px;
         margin-bottom: 5px;
-    }}
+    }
 
-    /* ===== SUBTITLE ===== */
-    .subtitle {{
+    .subtitle {
         text-align: center;
-        font-size: 19px;
-        color: #526777;
-        margin-bottom: 30px;
-    }}
+        font-size: 18px;
+        margin-bottom: 25px;
+    }
 
-    /* ===== SIDEBAR ===== */
-    section[data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, #063b32, #087f5b);
-    }}
-
-    section[data-testid="stSidebar"] * {{
-        color: white !important;
-    }}
-
-    /* ===== HEADINGS ===== */
-    h1, h2, h3 {{
-        color: #087f5b;
-    }}
-
-    /* ===== MEDICINE CARD ===== */
-    .medicine-card {{
-        padding: 22px;
-        border-radius: 16px;
-        background: white;
-        border: 1px solid #d8eee8;
-        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
-        margin-bottom: 18px;
-    }}
-
-    /* ===== BUTTON ===== */
-    .stButton > button {{
-        background: linear-gradient(90deg, #087f5b, #12b886);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 25px;
-        font-weight: 700;
-    }}
-
-    /* ===== TEXT INPUT ===== */
-    .stTextInput input,
-    .stTextArea textarea {{
-        border-radius: 10px;
-        border: 1px solid #b7ded3;
-    }}
-
-    /* ===== WARNING BOX ===== */
-    .warning-box {{
-        padding: 18px;
+    .medicine-card {
+        padding: 20px;
         border-radius: 12px;
-        background-color: #fff8db;
-        border: 1px solid #f1d67a;
-    }}
+        border: 1px solid #dddddd;
+        margin-bottom: 15px;
+    }
 
-    /* ===== MAIN TEXT ===== */
-    .main .block-container {{
-        color: #1f2937;
-    }}
-
-    .main .block-container p {{
-        color: #1f2937;
-    }}
-
-    .main .block-container label {{
-        color: #1f2937;
-    }}
-
-    /* ===== METRICS ===== */
-    div[data-testid="stMetric"] {{
-        background: white;
-        padding: 18px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        color: #1f2937;
-    }}
-
-    div[data-testid="stMetric"] label {{
-        color: #526777 !important;
-    }}
-
-    div[data-testid="stMetricValue"] {{
-        color: #087f5b !important;
-    }}
-
-    /* ===== ALERT ===== */
-    div[data-testid="stAlert"] {{
-        color: #5f4b00 !important;
-    }}
-
-    div[data-testid="stAlert"] p {{
-        color: #5f4b00 !important;
-    }}
-
-    /* ===== FOOTER ===== */
-    footer {{
-        visibility: hidden;
-    }}
+    .warning-box {
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+    }
 
     </style>
     """,
@@ -265,14 +155,17 @@ MEDICINES = {
 
     "Paracetamol": {
         "category": "Pain reliever / fever reducer",
+
         "uses": (
             "Generally used to reduce fever and relieve "
             "mild to moderate pain."
         ),
+
         "side_effects": (
             "Usually well tolerated when used appropriately. "
             "Excessive amounts can seriously damage the liver."
         ),
+
         "precautions": (
             "People with liver disease or those taking other "
             "medicines containing paracetamol should consult "
@@ -282,14 +175,17 @@ MEDICINES = {
 
     "Cetirizine": {
         "category": "Antihistamine",
+
         "uses": (
             "Generally used to relieve allergy symptoms such as "
             "sneezing, runny nose, itching and watery eyes."
         ),
+
         "side_effects": (
             "Drowsiness, tiredness, headache or dry mouth "
             "may occur in some people."
         ),
+
         "precautions": (
             "Be careful with activities requiring alertness if "
             "the medicine causes drowsiness."
@@ -298,13 +194,16 @@ MEDICINES = {
 
     "Ibuprofen": {
         "category": "NSAID pain reliever",
+
         "uses": (
             "Generally used to relieve pain, inflammation "
             "and fever."
         ),
+
         "side_effects": (
             "May cause stomach upset, nausea or indigestion."
         ),
+
         "precautions": (
             "People with certain stomach, kidney, heart or "
             "blood-pressure problems should seek professional "
@@ -314,14 +213,17 @@ MEDICINES = {
 
     "Amoxicillin": {
         "category": "Antibiotic",
+
         "uses": (
             "Used to treat certain bacterial infections "
             "when prescribed by a healthcare professional."
         ),
+
         "side_effects": (
             "Possible effects include nausea, diarrhea "
             "and allergic reactions."
         ),
+
         "precautions": (
             "Should only be used when prescribed. Antibiotics "
             "do not treat viral infections."
@@ -330,14 +232,17 @@ MEDICINES = {
 
     "Omeprazole": {
         "category": "Proton pump inhibitor",
+
         "uses": (
             "Generally used to reduce stomach acid and "
             "manage certain acid-related conditions."
         ),
+
         "side_effects": (
             "Headache, nausea, abdominal discomfort or "
             "diarrhea may occur."
         ),
+
         "precautions": (
             "Long-term use should be discussed with a "
             "healthcare professional."
@@ -346,14 +251,17 @@ MEDICINES = {
 
     "Aspirin": {
         "category": "NSAID / antiplatelet medicine",
+
         "uses": (
             "May be used for pain and fever, and in specific "
             "situations may be prescribed to reduce blood clotting."
         ),
+
         "side_effects": (
             "Can cause stomach irritation and increase "
             "the risk of bleeding."
         ),
+
         "precautions": (
             "Should not be used casually for children or by "
             "people with certain bleeding or stomach conditions."
@@ -362,14 +270,17 @@ MEDICINES = {
 
     "Azithromycin": {
         "category": "Macrolide antibiotic",
+
         "uses": (
             "Used for certain bacterial infections when "
             "prescribed by a healthcare professional."
         ),
+
         "side_effects": (
             "Nausea, diarrhea and abdominal discomfort "
             "can occur."
         ),
+
         "precautions": (
             "Use only according to professional advice. "
             "It does not treat viral infections."
@@ -401,6 +312,7 @@ def get_gemini_client():
 
     try:
         return genai.Client(api_key=api_key)
+
     except Exception:
         return None
 
@@ -409,7 +321,7 @@ gemini_client = get_gemini_client()
 
 
 # ============================================================
-# GEMINI FUNCTION
+# GEMINI AI FUNCTION WITH RETRY
 # ============================================================
 
 def ask_gemini(medicine, question):
@@ -422,6 +334,10 @@ def ask_gemini(medicine, question):
             "To enable the AI Assistant, add your Gemini API key "
             "to the environment or Streamlit secrets."
         )
+
+    # --------------------------------------------------------
+    # AI PROMPT
+    # --------------------------------------------------------
 
     prompt = f"""
 You are Smart Medicine, an educational medicine information assistant.
@@ -450,24 +366,78 @@ Important safety rules:
 Answer in simple language.
 """
 
-    try:
+    # --------------------------------------------------------
+    # RETRY SETTINGS
+    # --------------------------------------------------------
 
-        response = gemini_client.models.generate_content(
-            model="gemini-3.5-flash-",
-            contents=prompt
-        )
+    max_retries = 4
 
-        if response.text:
-            return response.text
+    for attempt in range(max_retries):
 
-        return "No response was generated."
+        try:
 
-    except Exception as error:
+            # ------------------------------------------------
+            # GEMINI API REQUEST
+            # ------------------------------------------------
 
-        return (
-            "Unable to get an AI response.\n\n"
-            f"Error: {error}"
-        )
+            response = gemini_client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=prompt
+            )
+
+            # ------------------------------------------------
+            # CHECK RESPONSE
+            # ------------------------------------------------
+
+            if response and response.text:
+
+                return response.text
+
+            return "No response was generated."
+
+        except Exception as error:
+
+            error_message = str(error)
+
+            # ------------------------------------------------
+            # TEMPORARY ERROR DETECTION
+            # ------------------------------------------------
+
+            temporary_error = (
+                "503" in error_message
+                or "UNAVAILABLE" in error_message
+                or "429" in error_message
+                or "RESOURCE_EXHAUSTED" in error_message
+                or "500" in error_message
+                or "502" in error_message
+                or "504" in error_message
+            )
+
+            # ------------------------------------------------
+            # RETRY TEMPORARY ERRORS
+            # ------------------------------------------------
+
+            if temporary_error and attempt < max_retries - 1:
+
+                wait_time = 2 ** attempt
+
+                time.sleep(wait_time)
+
+                continue
+
+            # ------------------------------------------------
+            # FINAL ERROR
+            # ------------------------------------------------
+
+            return (
+                "Unable to get an AI response.\n\n"
+                f"Error: {error_message}"
+            )
+
+    return (
+        "Gemini is temporarily busy. "
+        "Please try again in a few moments."
+    )
 
 
 # ============================================================
@@ -679,18 +649,47 @@ elif page == "🤖 AI Medicine Assistant":
         """
     )
 
+    # --------------------------------------------------------
+    # GEMINI CONNECTION STATUS
+    # --------------------------------------------------------
+
+    if gemini_client:
+
+        st.success(
+            "✅ Gemini AI is connected."
+        )
+
+    else:
+
+        st.error(
+            "❌ Gemini AI is not connected. "
+            "Please configure GEMINI_API_KEY."
+        )
+
+    # --------------------------------------------------------
+    # MEDICINE SELECTION
+    # --------------------------------------------------------
+
     medicine = st.selectbox(
         "Select medicine",
         list(MEDICINES.keys())
     )
 
+    # --------------------------------------------------------
+    # QUESTION
+    # --------------------------------------------------------
+
     question = st.text_area(
         "Enter your question",
         placeholder=(
-            "Example: What is Paracetamol generally used for?"
+            "Example: What are the uses of Paracetamol?"
         ),
         height=120
     )
+
+    # --------------------------------------------------------
+    # ASK AI BUTTON
+    # --------------------------------------------------------
 
     if st.button(
         "🤖 Ask AI",
@@ -703,10 +702,16 @@ elif page == "🤖 AI Medicine Assistant":
                 "Please enter a question."
             )
 
+        elif gemini_client is None:
+
+            st.error(
+                "Gemini API is not configured."
+            )
+
         else:
 
             with st.spinner(
-                "Getting information..."
+                "Getting information from Gemini AI..."
             ):
 
                 answer = ask_gemini(
@@ -719,6 +724,10 @@ elif page == "🤖 AI Medicine Assistant":
             )
 
             st.write(answer)
+
+            # ------------------------------------------------
+            # SAVE QUESTION TO DATABASE
+            # ------------------------------------------------
 
             save_history(
                 medicine,
